@@ -28,6 +28,9 @@ package net.runelite.client.plugins.batools;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -58,7 +61,10 @@ import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.client.chat.ChatColorType;
+import net.runelite.client.chat.ChatMessageBuilder;
 import net.runelite.client.chat.ChatMessageManager;
+import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
@@ -78,9 +84,12 @@ public class BAToolsPlugin extends Plugin
 	int inGameBit = 0;
 	int tickNum;
 	int pastCall = 0;
+	int clanCount = 0;
 	private int currentWave = 1;
 	private static final int BA_WAVE_NUM_INDEX = 2;
 	private final List<MenuEntry> entries = new ArrayList<>();
+	private List<String[]> csvContent = new ArrayList<>();
+	private List<String> premList = new ArrayList<>();
 	private CycleCounter counter;
 
 	@Inject
@@ -126,7 +135,24 @@ public class BAToolsPlugin extends Plugin
 		overlayManager.add(overlay);
 		healers = new HashMap<>();
 		wave_start = Instant.now();
+		readCSV();
+
 	}
+
+	private void readCSV() throws Exception
+	{
+		String st = "https://docs.google.com/spreadsheets/d/1Jh9Nj6BvWVgzZ9urnTTNniQLkgprx_TMggaz8gt_iDM/export?format=csv";
+		URL stockURL = new URL(st);
+		BufferedReader in = new BufferedReader(new InputStreamReader(stockURL.openStream()));
+		String s;
+		csvContent.clear();
+		while ((s = in.readLine()) != null)
+		{
+			String[] splitString = s.split(",");
+			csvContent.add(new String[]{splitString[2], splitString[2].equals("R") ? splitString[4] : splitString[3]});
+		}
+	}
+
 
 	@Override
 	protected void shutDown() throws Exception
@@ -135,6 +161,7 @@ public class BAToolsPlugin extends Plugin
 		healers.clear();
 		inGameBit = 0;
 		overlayManager.remove(overlay);
+
 	}
 
 	@Subscribe
@@ -185,6 +212,62 @@ public class BAToolsPlugin extends Plugin
 			}
 		}
 
+		if (clanCount != client.getClanChatCount())
+		{
+			Widget clanChatTitleWidget = client.getWidget(WidgetInfo.CLAN_CHAT_TITLE);
+			if (clanChatTitleWidget != null)
+			{
+				Widget clanChatList = client.getWidget(WidgetInfo.CLAN_CHAT_LIST);
+				Widget owner = client.getWidget(WidgetInfo.CLAN_CHAT_OWNER);
+				if (client.getClanChatCount() > 0 && owner.getText().equals("<col=ffffff>Ba Services</col>"))
+				{
+					Widget[] members = clanChatList.getDynamicChildren();
+					for (Widget member : members)
+					{
+						if (member.getTextColor() == 16777215)
+						{
+							for (String[] user : csvContent)
+							{
+								if (user[1].equals(member.getText()))
+								{
+									if (user[0].equals("P"))
+									{
+										member.setTextColor(6604900);
+										boolean inList = false;
+										for (String prem : premList)
+										{
+											if (prem.equals(member.getText()))
+											{
+												inList = true;
+											}
+										}
+										if (!inList)
+										{
+											premList.add(member.getText());
+											final String chatMessage = new ChatMessageBuilder()
+												.append(ChatColorType.NORMAL)
+												.append("Premium leech " + member.getText())
+												.append(ChatColorType.HIGHLIGHT)
+												.append(" online.")
+												.build();
+											chatMessageManager.queue(QueuedMessage.builder()
+												.type(ChatMessageType.GAME)
+												.runeLiteFormattedMessage(chatMessage)
+												.build());
+										}
+									}
+									else
+									{
+										member.setTextColor(6579400);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			clanCount = client.getClanChatCount();
+		}
 	}
 
 	private Widget getWidget()
