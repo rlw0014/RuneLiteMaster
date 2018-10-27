@@ -62,6 +62,7 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.chat.ChatColorType;
+import net.runelite.api.events.ClanChanged;
 import net.runelite.client.chat.ChatMessageBuilder;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
@@ -149,10 +150,26 @@ public class BAToolsPlugin extends Plugin
 		while ((s = in.readLine()) != null)
 		{
 			String[] splitString = s.split(",");
-			csvContent.add(new String[]{splitString[2], splitString[2].equals("R") ? splitString[4] : splitString[3]});
+			csvContent.add(new String[]{splitString[2], splitString[2].equals("R") ? splitString[4] : splitString[3], splitString[0]});
 		}
 	}
 
+	@Subscribe
+	public void onClanChanged(ClanChanged changed) throws Exception
+	{
+
+		if(client.getWidget(WidgetInfo.CLAN_CHAT_OWNER)==null)
+		{
+			return;
+		}
+
+		Widget owner = client.getWidget(WidgetInfo.CLAN_CHAT_OWNER);
+		if(owner.getText().equals("<col=ffffff>Ba Services</col>"))
+		{
+			readCSV();
+			clanCount = 0;
+		}
+	}
 
 	@Override
 	protected void shutDown() throws Exception
@@ -161,7 +178,7 @@ public class BAToolsPlugin extends Plugin
 		healers.clear();
 		inGameBit = 0;
 		overlayManager.remove(overlay);
-
+		clanCount = 0;
 	}
 
 	@Subscribe
@@ -180,6 +197,7 @@ public class BAToolsPlugin extends Plugin
 			}
 		}
 	}
+
 
 	@Subscribe
 	public void onGameTick(GameTick event)
@@ -230,6 +248,22 @@ public class BAToolsPlugin extends Plugin
 							{
 								if (user[1].equals(member.getText()))
 								{
+									String status = "";
+									switch(user[2])
+									{
+										case "":
+											status = "#!";
+											break;
+										case "Online":
+											status = "#O";
+											break;
+										case "In Progress":
+											status = "#P";
+											break;
+										case "Done":
+											status = "#D";
+											break;
+									}
 									if (user[0].equals("P"))
 									{
 										member.setTextColor(6604900);
@@ -255,6 +289,7 @@ public class BAToolsPlugin extends Plugin
 												.runeLiteFormattedMessage(chatMessage)
 												.build());
 										}
+										member.setText(member.getText() + status);
 									}
 									else
 									{
@@ -264,24 +299,21 @@ public class BAToolsPlugin extends Plugin
 							}
 						}
 					}
-
 					for (String prem : premList)
 					{
 						boolean online = false;
 						for (Widget member : members)
 						{
-							if (member.getTextColor() == 16777215)
+							if(member.getText().contains("#"));
+							if(member.getText().split("#")[0].equals(prem))
 							{
-								if(member.getText().equals(prem))
-								{
-									online = true;
-								}
+								online = true;
+								member.setText(member.getText().split("#")[0] + " (" + member.getText().split("#")[1]+")");
 							}
 						}
 						if(!online)
 						{
 							premList.remove(prem);
-							premList.add(prem);
 							final String chatMessage = new ChatMessageBuilder()
 								.append(ChatColorType.NORMAL)
 								.append("Premium leech " + prem)
