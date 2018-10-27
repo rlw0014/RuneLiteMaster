@@ -212,7 +212,7 @@ public class BAToolsPlugin extends Plugin
 			}
 		}
 
-		if (clanCount != client.getClanChatCount())
+		if (clanCount != client.getClanChatCount() && config.basFeature())
 		{
 			Widget clanChatTitleWidget = client.getWidget(WidgetInfo.CLAN_CHAT_TITLE);
 			if (clanChatTitleWidget != null)
@@ -262,6 +262,36 @@ public class BAToolsPlugin extends Plugin
 									}
 								}
 							}
+						}
+					}
+
+					for (String prem : premList)
+					{
+						boolean online = false;
+						for (Widget member : members)
+						{
+							if (member.getTextColor() == 16777215)
+							{
+								if(member.getText().equals(prem))
+								{
+									online = true;
+								}
+							}
+						}
+						if(!online)
+						{
+							premList.remove(prem);
+							premList.add(prem);
+							final String chatMessage = new ChatMessageBuilder()
+								.append(ChatColorType.NORMAL)
+								.append("Premium leech " + prem)
+								.append(ChatColorType.HIGHLIGHT)
+								.append(" offline.")
+								.build();
+							chatMessageManager.queue(QueuedMessage.builder()
+								.type(ChatMessageType.GAME)
+								.runeLiteFormattedMessage(chatMessage)
+								.build());
 						}
 					}
 				}

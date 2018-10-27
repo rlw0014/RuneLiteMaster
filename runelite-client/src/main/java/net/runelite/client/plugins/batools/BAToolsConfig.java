@@ -71,4 +71,14 @@ public interface BAToolsConfig extends Config
 	{
 		return false;
 	}
+
+	@ConfigItem(
+		keyName = "basFeature",
+		name = "BAS Customers",
+		description = "asd"
+	)
+	default boolean basFeature()
+	{
+		return false;
+	}
 }
