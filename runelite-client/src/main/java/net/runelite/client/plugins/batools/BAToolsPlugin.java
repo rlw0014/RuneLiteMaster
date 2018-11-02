@@ -85,7 +85,6 @@ public class BAToolsPlugin extends Plugin
 	int inGameBit = 0;
 	int tickNum;
 	int pastCall = 0;
-	int clanCount = 0;
 	private int currentWave = 1;
 	private static final int BA_WAVE_NUM_INDEX = 2;
 	private final List<MenuEntry> entries = new ArrayList<>();
@@ -136,7 +135,7 @@ public class BAToolsPlugin extends Plugin
 		overlayManager.add(overlay);
 		healers = new HashMap<>();
 		wave_start = Instant.now();
-		readCSV();
+		//readCSV();
 
 	}
 
@@ -167,7 +166,6 @@ public class BAToolsPlugin extends Plugin
 		if(owner.getText().equals("<col=ffffff>Ba Services</col>"))
 		{
 			readCSV();
-			clanCount = 0;
 		}
 	}
 
@@ -178,7 +176,6 @@ public class BAToolsPlugin extends Plugin
 		healers.clear();
 		inGameBit = 0;
 		overlayManager.remove(overlay);
-		clanCount = 0;
 	}
 
 	@Subscribe
@@ -230,7 +227,7 @@ public class BAToolsPlugin extends Plugin
 			}
 		}
 
-		if (clanCount != client.getClanChatCount() && config.basFeature())
+		if (config.basFeature())
 		{
 			Widget clanChatTitleWidget = client.getWidget(WidgetInfo.CLAN_CHAT_TITLE);
 			if (clanChatTitleWidget != null)
@@ -246,22 +243,18 @@ public class BAToolsPlugin extends Plugin
 						{
 							for (String[] user : csvContent)
 							{
-								if (user[1].equals(member.getText()))
+								if (user[1].toLowerCase().contains(member.getText().toLowerCase()))
 								{
-									String status = "";
 									switch(user[2])
 									{
 										case "":
-											status = "#!";
+											member.setText(member.getText() + " (!)");
 											break;
 										case "Online":
-											status = "#O";
+											member.setText(member.getText() + " (O)");
 											break;
 										case "In Progress":
-											status = "#P";
-											break;
-										case "Done":
-											status = "#D";
+											member.setText(member.getText() + " (P)");
 											break;
 									}
 									if (user[0].equals("P"))
@@ -270,7 +263,7 @@ public class BAToolsPlugin extends Plugin
 										boolean inList = false;
 										for (String prem : premList)
 										{
-											if (prem.equals(member.getText()))
+											if (member.getText().toLowerCase().contains(prem.toLowerCase()))
 											{
 												inList = true;
 											}
@@ -289,7 +282,6 @@ public class BAToolsPlugin extends Plugin
 												.runeLiteFormattedMessage(chatMessage)
 												.build());
 										}
-										member.setText(member.getText() + status);
 									}
 									else
 									{
@@ -304,11 +296,9 @@ public class BAToolsPlugin extends Plugin
 						boolean online = false;
 						for (Widget member : members)
 						{
-							if(member.getText().contains("#"));
-							if(member.getText().split("#")[0].equals(prem))
+							if(member.getText().toLowerCase().contains(prem.toLowerCase()))
 							{
 								online = true;
-								member.setText(member.getText().split("#")[0] + " (" + member.getText().split("#")[1]+")");
 							}
 						}
 						if(!online)
@@ -328,7 +318,6 @@ public class BAToolsPlugin extends Plugin
 					}
 				}
 			}
-			clanCount = client.getClanChatCount();
 		}
 	}
 
