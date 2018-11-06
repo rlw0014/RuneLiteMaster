@@ -439,7 +439,7 @@ public class BAToolsPlugin extends Plugin
 	@Subscribe
 	public void onMenuEntryAdded(MenuEntryAdded event)
 	{
-		if (config.calls() && getWidget() != null && event.getTarget().endsWith("horn") && event.getTarget().contains("unicorn"))
+		if (config.calls() && getWidget() != null && event.getTarget().endsWith("horn") && !event.getTarget().contains("unicorn"))
 		{
 			MenuEntry[] menuEntries = client.getMenuEntries();
 			Widget callWidget = getWidget();
