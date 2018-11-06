@@ -294,6 +294,7 @@ public class BAToolsPlugin extends Plugin
 					for (String prem : premList)
 					{
 						boolean online = false;
+						log.info("members size = "+ members.length);
 						for (Widget member : members)
 						{
 							if(member.getText().toLowerCase().contains(prem.toLowerCase()))
