@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2018, Tomas Slusny <slusnucky@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,43 +22,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.modelviewer;
+package net.runelite.client.plugins.xptracker;
 
-import com.google.gson.Gson;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-import net.runelite.cache.definitions.KitDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-public class KitManager
+@Getter
+@AllArgsConstructor
+enum XpActionType
 {
-	private static final Logger logger = LoggerFactory.getLogger(KitManager.class);
+	EXPERIENCE("Actions"),
+	ACTOR_HEALTH("Kills");
 
-	private static Map<Integer, KitDefinition> kits = new HashMap<>();
-
-	public static KitDefinition getKit(int id)
-	{
-		KitDefinition def = kits.get(id);
-		if (def != null)
-		{
-			return def;
-		}
-
-		try (FileInputStream in = new FileInputStream(new File("kits/" + id + ".json")))
-		{
-			def = new Gson().fromJson(new InputStreamReader(in), KitDefinition.class);
-			kits.put(id, def);
-			return def;
-		}
-		catch (IOException ex)
-		{
-			logger.warn(null, ex);
-			return null;
-		}
-	}
+	private final String label;
 }

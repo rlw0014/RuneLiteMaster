@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Adam <Adam@sigterm.info>
+ * Copyright (c) 2018, Tomas Slusny <slusnucky@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,18 +22,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.modelviewer;
+package net.runelite.client.plugins.xptracker;
 
-import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@AllArgsConstructor
-public class SceneTilePaint
+@Data
+class XpAction
 {
-	final int swColor;
-	final int seColor;
-	final int neColor;
-	final int nwColor;
-	final int texture;
-	final int rgb;
-	final boolean flatShade;
+	private int actions = 0;
+	private boolean actionsHistoryInitialized = false;
+	private int[] actionExps = new int[10];
+	private int actionExpIndex = 0;
 }
