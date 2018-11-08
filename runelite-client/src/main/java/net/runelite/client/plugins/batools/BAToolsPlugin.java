@@ -51,6 +51,7 @@ import net.runelite.api.NpcID;
 import net.runelite.api.Varbits;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.ChatMessage;
+import net.runelite.api.events.ConfigChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.MenuEntryAdded;
@@ -135,6 +136,7 @@ public class BAToolsPlugin extends Plugin
 		overlayManager.add(overlay);
 		healers = new HashMap<>();
 		wave_start = Instant.now();
+		client.setInventoryDragDelay(config.antiDragDelay());
 		//readCSV();
 
 	}
@@ -176,6 +178,7 @@ public class BAToolsPlugin extends Plugin
 		healers.clear();
 		inGameBit = 0;
 		overlayManager.remove(overlay);
+		client.setInventoryDragDelay(5);
 	}
 
 	@Subscribe
@@ -481,6 +484,17 @@ public class BAToolsPlugin extends Plugin
 		}
 
 	}
+
+
+	@Subscribe
+	public void onConfigChanged(ConfigChanged event)
+	{
+		if(config.antiDrag())
+		{
+			client.setInventoryDragDelay(config.antiDragDelay());
+		}
+	}
+
 
 	private void addCounter()
 	{

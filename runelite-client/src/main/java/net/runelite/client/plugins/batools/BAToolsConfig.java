@@ -81,4 +81,24 @@ public interface BAToolsConfig extends Config
 	{
 		return false;
 	}
+
+	@ConfigItem(
+		keyName = "antiDrag",
+		name = "Anti Drag",
+		description = "asd"
+	)
+	default boolean antiDrag()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "antiDragDelay",
+		name = "Anti Drag Delay",
+		description = "asd"
+	)
+	default int antiDragDelay()
+	{
+		return 5;
+	}
 }
