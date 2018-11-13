@@ -202,6 +202,10 @@ public class BAToolsPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick event)
 	{
+		if(config.antiDrag())
+		{
+			client.setInventoryDragDelay(config.antiDragDelay());
+		}
 
 		Widget callWidget = getWidget();
 
@@ -227,100 +231,6 @@ public class BAToolsPlugin extends Plugin
 			if (config.defTimer())
 			{
 				log.info("" + tickNum++);
-			}
-		}
-
-		if (config.basFeature())
-		{
-			Widget clanChatTitleWidget = client.getWidget(WidgetInfo.CLAN_CHAT_TITLE);
-			if (clanChatTitleWidget != null)
-			{
-				Widget clanChatList = client.getWidget(WidgetInfo.CLAN_CHAT_LIST);
-				Widget owner = client.getWidget(WidgetInfo.CLAN_CHAT_OWNER);
-				if (client.getClanChatCount() > 0 && owner.getText().equals("<col=ffffff>Ba Services</col>"))
-				{
-					Widget[] members = clanChatList.getDynamicChildren();
-					for (Widget member : members)
-					{
-						if (member.getTextColor() == 16777215)
-						{
-							for (String[] user : csvContent)
-							{
-								if (user[1].toLowerCase().contains(member.getText().toLowerCase()))
-								{
-									switch(user[2])
-									{
-										case "":
-											member.setText(member.getText() + " (!)");
-											break;
-										case "Online":
-											member.setText(member.getText() + " (O)");
-											break;
-										case "In Progress":
-											member.setText(member.getText() + " (P)");
-											break;
-									}
-									if (user[0].equals("P"))
-									{
-										member.setTextColor(6604900);
-										boolean inList = false;
-										for (String prem : premList)
-										{
-											if (member.getText().toLowerCase().contains(prem.toLowerCase()))
-											{
-												inList = true;
-											}
-										}
-										if (!inList)
-										{
-											premList.add(member.getText());
-											final String chatMessage = new ChatMessageBuilder()
-												.append(ChatColorType.NORMAL)
-												.append("Premium leech " + member.getText())
-												.append(ChatColorType.HIGHLIGHT)
-												.append(" online.")
-												.build();
-											chatMessageManager.queue(QueuedMessage.builder()
-												.type(ChatMessageType.GAME)
-												.runeLiteFormattedMessage(chatMessage)
-												.build());
-										}
-									}
-									else
-									{
-										member.setTextColor(6579400);
-									}
-								}
-							}
-						}
-					}
-					for (String prem : premList)
-					{
-						boolean online = false;
-						log.info("members size = "+ members.length);
-						for (Widget member : members)
-						{
-							if(member.getText().toLowerCase().contains(prem.toLowerCase()))
-							{
-								online = true;
-							}
-						}
-						if(!online)
-						{
-							premList.remove(prem);
-							final String chatMessage = new ChatMessageBuilder()
-								.append(ChatColorType.NORMAL)
-								.append("Premium leech " + prem)
-								.append(ChatColorType.HIGHLIGHT)
-								.append(" offline.")
-								.build();
-							chatMessageManager.queue(QueuedMessage.builder()
-								.type(ChatMessageType.GAME)
-								.runeLiteFormattedMessage(chatMessage)
-								.build());
-						}
-					}
-				}
 			}
 		}
 	}

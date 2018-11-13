@@ -73,16 +73,6 @@ public interface BAToolsConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "basFeature",
-		name = "BAS Customers",
-		description = "asd"
-	)
-	default boolean basFeature()
-	{
-		return false;
-	}
-
-	@ConfigItem(
 		keyName = "antiDrag",
 		name = "Anti Drag",
 		description = "asd"
