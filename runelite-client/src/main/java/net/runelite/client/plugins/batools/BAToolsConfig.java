@@ -73,6 +73,16 @@ public interface BAToolsConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "healerMenuOption",
+		name = "Healer menu options",
+		description = "asd"
+	)
+	default boolean healerMenuOption()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "antiDrag",
 		name = "Anti Drag",
 		description = "asd"

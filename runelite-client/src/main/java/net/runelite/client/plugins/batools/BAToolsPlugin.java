@@ -28,14 +28,13 @@ package net.runelite.client.plugins.batools;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.awt.Color;
 import java.util.Map;
 import javax.inject.Inject;
 import lombok.Getter;
@@ -55,18 +54,16 @@ import net.runelite.api.events.ConfigChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.MenuEntryAdded;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WidgetLoaded;
+import net.runelite.api.events.InteractingChanged;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
-import net.runelite.client.chat.ChatColorType;
-import net.runelite.api.events.ClanChanged;
-import net.runelite.client.chat.ChatMessageBuilder;
 import net.runelite.client.chat.ChatMessageManager;
-import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
@@ -74,6 +71,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.util.Text;
+import net.runelite.client.util.ColorUtil;
 
 @Slf4j
 @PluginDescriptor(
@@ -89,9 +87,9 @@ public class BAToolsPlugin extends Plugin
 	private int currentWave = 1;
 	private static final int BA_WAVE_NUM_INDEX = 2;
 	private final List<MenuEntry> entries = new ArrayList<>();
-	private List<String[]> csvContent = new ArrayList<>();
-	private List<String> premList = new ArrayList<>();
+	private HashMap<Integer, Instant> foodPressed = new HashMap<>();
 	private CycleCounter counter;
+	private Actor lastInteracted;
 
 	@Inject
 	private Client client;
@@ -136,39 +134,10 @@ public class BAToolsPlugin extends Plugin
 		overlayManager.add(overlay);
 		healers = new HashMap<>();
 		wave_start = Instant.now();
+		lastInteracted = null;
+		foodPressed.clear();
 		client.setInventoryDragDelay(config.antiDragDelay());
-		//readCSV();
 
-	}
-
-	private void readCSV() throws Exception
-	{
-		String st = "https://docs.google.com/spreadsheets/d/1Jh9Nj6BvWVgzZ9urnTTNniQLkgprx_TMggaz8gt_iDM/export?format=csv";
-		URL stockURL = new URL(st);
-		BufferedReader in = new BufferedReader(new InputStreamReader(stockURL.openStream()));
-		String s;
-		csvContent.clear();
-		while ((s = in.readLine()) != null)
-		{
-			String[] splitString = s.split(",");
-			csvContent.add(new String[]{splitString[2], splitString[2].equals("R") ? splitString[4] : splitString[3], splitString[0]});
-		}
-	}
-
-	@Subscribe
-	public void onClanChanged(ClanChanged changed) throws Exception
-	{
-
-		if(client.getWidget(WidgetInfo.CLAN_CHAT_OWNER)==null)
-		{
-			return;
-		}
-
-		Widget owner = client.getWidget(WidgetInfo.CLAN_CHAT_OWNER);
-		if(owner.getText().equals("<col=ffffff>Ba Services</col>"))
-		{
-			readCSV();
-		}
 	}
 
 	@Override
@@ -177,6 +146,7 @@ public class BAToolsPlugin extends Plugin
 		removeCounter();
 		healers.clear();
 		inGameBit = 0;
+		lastInteracted = null;
 		overlayManager.remove(overlay);
 		client.setInventoryDragDelay(5);
 	}
@@ -197,7 +167,6 @@ public class BAToolsPlugin extends Plugin
 			}
 		}
 	}
-
 
 	@Subscribe
 	public void onGameTick(GameTick event)
@@ -267,6 +236,7 @@ public class BAToolsPlugin extends Plugin
 			{
 				pastCall = 0;
 				removeCounter();
+				foodPressed.clear();
 			}
 			else
 			{
@@ -311,14 +281,14 @@ public class BAToolsPlugin extends Plugin
 	{
 		Actor actor = hitsplatApplied.getActor();
 
-		if (healers.isEmpty() && !(actor instanceof NPC))
+		if (healers.isEmpty() && !(actor instanceof NPC) && lastInteracted == null)
 		{
 			return;
 		}
 
 		for (Healer healer : healers.values())
 		{
-			if (healer.getNpc() == actor)
+			if (healer.getNpc() == actor && actor == lastInteracted)
 			{
 				healer.setFoodRemaining(healer.getFoodRemaining() - 1);
 			}
@@ -333,6 +303,17 @@ public class BAToolsPlugin extends Plugin
 			healers.clear();
 		}
 
+	}
+
+	@Subscribe
+	public void onInteractingChanged(InteractingChanged event)
+	{
+		Actor actor = event.getTarget();
+
+		if(actor instanceof NPC && isNpcHealer(((NPC) actor).getId()))
+		{
+			lastInteracted = event.getTarget().getInteracting();
+		}
 	}
 
 	public static boolean isNpcHealer(int npcId)
@@ -393,8 +374,54 @@ public class BAToolsPlugin extends Plugin
 			swap("quick-start", option, target, true);
 		}
 
+		if(config.healerMenuOption() && event.getTarget().contains("Penance Healer"))
+		{
+
+			MenuEntry[] menuEntries = client.getMenuEntries();
+			MenuEntry lastEntry = menuEntries[menuEntries.length - 1];
+			String targett = lastEntry.getTarget();
+
+			if(foodPressed.containsKey(lastEntry.getIdentifier()))
+			{
+				lastEntry.setTarget(lastEntry.getTarget().split("\\(")[0]+"("+Duration.between(foodPressed.get(lastEntry.getIdentifier()), Instant.now()).getSeconds()+")");
+				if(Duration.between(foodPressed.get(lastEntry.getIdentifier()), Instant.now()).getSeconds()>20)
+				{
+					lastEntry.setTarget(lastEntry.getTarget().replace("<col=ffff00>", "<col=2bff63>"));
+				}
+			}
+			else
+			{
+				lastEntry.setTarget(targett.replace("<col=ffff00>", "<col=2bff63>"));
+
+			}
+
+			client.setMenuEntries(menuEntries);
+		}
 	}
 
+	@Subscribe
+	public void onMenuOptionClicked(MenuOptionClicked event)
+	{
+		if(!config.healerMenuOption() || !event.getMenuTarget().contains("Penance Healer") || client.getWidget(WidgetInfo.BA_HEAL_CALL_TEXT) == null)
+		{
+			return;
+		}
+
+		String currentCall = client.getWidget(WidgetInfo.BA_HEAL_CALL_TEXT).getText();
+		String target = event.getMenuTarget();
+
+		if( (currentCall.equals("Pois. Worms") && (target.contains("Poisoned worms") && target.contains("->") && target.contains("Penance Healer")) )
+			|| (currentCall.equals("Pois. Meat") && (target.contains("Poisoned meat") && target.contains("->") && target.contains("Penance Healer")) )
+			|| (currentCall.equals("Pois. Tofu") && (target.contains("Poisoned tofu") && target.contains("->") && target.contains("Penance Healer"))) )
+		{
+			foodPressed.put(event.getId(), Instant.now());
+		}
+
+		if(target.contains("->") && target.contains("Penance Healer"))
+		{
+			foodPressed.put(event.getId(), Instant.now());
+		}
+	}
 
 	@Subscribe
 	public void onConfigChanged(ConfigChanged event)
