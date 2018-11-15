@@ -398,6 +398,7 @@ public class BAToolsPlugin extends Plugin
 		if (client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT) != null && inGameBit == 1 && config.eggBoi() && event.getTarget().endsWith("egg"))
 		{
 			String[] currentCall = client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT).getText().split(" ");
+			log.info("1 "+currentCall[0]);
 			MenuEntry[] menuEntries = client.getMenuEntries();
 			MenuEntry correctEgg = null;
 			entries.clear();
@@ -407,18 +408,23 @@ public class BAToolsPlugin extends Plugin
 				if(entry.getTarget().contains(currentCall[0]) && entry.getOption().equals("Take"))
 				{
 					correctEgg = entry;
+					log.info("3 Correct egg found");
 				}
-				else if (!entry.equals("Take"))
+				else if ( entry.getOption().equals("Take"))
 				{
 					entries.add(entry);
 				}
 			}
-
+			log.info("2 "+correctEgg);
 			if (correctEgg != null) //&& callWidget.getTextColor()==16316664)
 			{
 				entries.add(correctEgg);
 				client.setMenuEntries(entries.toArray(new MenuEntry[entries.size()]));
 			}
+		}
+		else
+		{
+			log.info((client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT) != null) + " | "+ (inGameBit == 1)  + " | "+config.eggBoi() + " | "+ event.getTarget().endsWith("egg"));
 		}
 	}
 
