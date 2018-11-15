@@ -101,4 +101,14 @@ public interface BAToolsConfig extends Config
 	{
 		return 5;
 	}
+
+	@ConfigItem(
+		keyName = "eggBoi",
+		name = "Collector helper",
+		description = "asd"
+	)
+	default boolean eggBoi()
+	{
+		return false;
+	}
 }

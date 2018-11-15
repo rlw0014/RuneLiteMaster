@@ -28,13 +28,11 @@ package net.runelite.client.plugins.batools;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.awt.Color;
 import java.util.Map;
 import javax.inject.Inject;
 import lombok.Getter;
@@ -53,13 +51,13 @@ import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.ConfigChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.HitsplatApplied;
+import net.runelite.api.events.InteractingChanged;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WidgetLoaded;
-import net.runelite.api.events.InteractingChanged;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
@@ -71,7 +69,6 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.util.Text;
-import net.runelite.client.util.ColorUtil;
 
 @Slf4j
 @PluginDescriptor(
@@ -171,7 +168,7 @@ public class BAToolsPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick event)
 	{
-		if(config.antiDrag())
+		if (config.antiDrag())
 		{
 			client.setInventoryDragDelay(config.antiDragDelay());
 		}
@@ -310,7 +307,7 @@ public class BAToolsPlugin extends Plugin
 	{
 		Actor actor = event.getTarget();
 
-		if(actor instanceof NPC && isNpcHealer(((NPC) actor).getId()))
+		if (actor instanceof NPC && isNpcHealer(((NPC) actor).getId()))
 		{
 			lastInteracted = event.getTarget().getInteracting();
 		}
@@ -374,17 +371,17 @@ public class BAToolsPlugin extends Plugin
 			swap("quick-start", option, target, true);
 		}
 
-		if(config.healerMenuOption() && event.getTarget().contains("Penance Healer"))
+		if (inGameBit == 1 && config.healerMenuOption() && event.getTarget().contains("Penance Healer"))
 		{
 
 			MenuEntry[] menuEntries = client.getMenuEntries();
 			MenuEntry lastEntry = menuEntries[menuEntries.length - 1];
 			String targett = lastEntry.getTarget();
 
-			if(foodPressed.containsKey(lastEntry.getIdentifier()))
+			if (foodPressed.containsKey(lastEntry.getIdentifier()))
 			{
-				lastEntry.setTarget(lastEntry.getTarget().split("\\(")[0]+"("+Duration.between(foodPressed.get(lastEntry.getIdentifier()), Instant.now()).getSeconds()+")");
-				if(Duration.between(foodPressed.get(lastEntry.getIdentifier()), Instant.now()).getSeconds()>20)
+				lastEntry.setTarget(lastEntry.getTarget().split("\\(")[0] + "(" + Duration.between(foodPressed.get(lastEntry.getIdentifier()), Instant.now()).getSeconds() + ")");
+				if (Duration.between(foodPressed.get(lastEntry.getIdentifier()), Instant.now()).getSeconds() > 20)
 				{
 					lastEntry.setTarget(lastEntry.getTarget().replace("<col=ffff00>", "<col=2bff63>"));
 				}
@@ -397,12 +394,38 @@ public class BAToolsPlugin extends Plugin
 
 			client.setMenuEntries(menuEntries);
 		}
+
+		if (client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT) != null && inGameBit == 1 && config.eggBoi() && event.getTarget().endsWith("egg"))
+		{
+			String[] currentCall = client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT).getText().split(" ");
+			MenuEntry[] menuEntries = client.getMenuEntries();
+			MenuEntry correctEgg = null;
+			entries.clear();
+
+			for (MenuEntry entry : menuEntries)
+			{
+				if(entry.getTarget().contains(currentCall[0]) && entry.getOption().equals("Take"))
+				{
+					correctEgg = entry;
+				}
+				else if (!entry.equals("Take"))
+				{
+					entries.add(entry);
+				}
+			}
+
+			if (correctEgg != null) //&& callWidget.getTextColor()==16316664)
+			{
+				entries.add(correctEgg);
+				client.setMenuEntries(entries.toArray(new MenuEntry[entries.size()]));
+			}
+		}
 	}
 
 	@Subscribe
 	public void onMenuOptionClicked(MenuOptionClicked event)
 	{
-		if(!config.healerMenuOption() || !event.getMenuTarget().contains("Penance Healer") || client.getWidget(WidgetInfo.BA_HEAL_CALL_TEXT) == null)
+		if (!config.healerMenuOption() || !event.getMenuTarget().contains("Penance Healer") || client.getWidget(WidgetInfo.BA_HEAL_CALL_TEXT) == null)
 		{
 			return;
 		}
@@ -410,14 +433,14 @@ public class BAToolsPlugin extends Plugin
 		String currentCall = client.getWidget(WidgetInfo.BA_HEAL_CALL_TEXT).getText();
 		String target = event.getMenuTarget();
 
-		if( (currentCall.equals("Pois. Worms") && (target.contains("Poisoned worms") && target.contains("->") && target.contains("Penance Healer")) )
-			|| (currentCall.equals("Pois. Meat") && (target.contains("Poisoned meat") && target.contains("->") && target.contains("Penance Healer")) )
-			|| (currentCall.equals("Pois. Tofu") && (target.contains("Poisoned tofu") && target.contains("->") && target.contains("Penance Healer"))) )
+		if ((currentCall.equals("Pois. Worms") && (target.contains("Poisoned worms") && target.contains("->") && target.contains("Penance Healer")))
+			|| (currentCall.equals("Pois. Meat") && (target.contains("Poisoned meat") && target.contains("->") && target.contains("Penance Healer")))
+			|| (currentCall.equals("Pois. Tofu") && (target.contains("Poisoned tofu") && target.contains("->") && target.contains("Penance Healer"))))
 		{
 			foodPressed.put(event.getId(), Instant.now());
 		}
 
-		if(target.contains("->") && target.contains("Penance Healer"))
+		if (target.contains("->") && target.contains("Penance Healer"))
 		{
 			foodPressed.put(event.getId(), Instant.now());
 		}
@@ -426,7 +449,7 @@ public class BAToolsPlugin extends Plugin
 	@Subscribe
 	public void onConfigChanged(ConfigChanged event)
 	{
-		if(config.antiDrag())
+		if (config.antiDrag())
 		{
 			client.setInventoryDragDelay(config.antiDragDelay());
 		}
