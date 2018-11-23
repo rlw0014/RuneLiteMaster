@@ -111,4 +111,14 @@ public interface BAToolsConfig extends Config
 	{
 		return false;
 	}
+
+	@ConfigItem(
+		keyName = "osHelp",
+		name = "Shift OS",
+		description = "asd"
+	)
+	default boolean osHelp()
+	{
+		return false;
+	}
 }

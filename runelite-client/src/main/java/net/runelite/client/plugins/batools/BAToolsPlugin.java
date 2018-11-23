@@ -27,6 +27,7 @@ package net.runelite.client.plugins.batools;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Provides;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.time.Duration;
 import java.time.Instant;
@@ -64,6 +65,8 @@ import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.input.KeyListener;
+import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -76,7 +79,7 @@ import net.runelite.client.util.Text;
 	description = "Custom tools for Barbarian Assault",
 	tags = {"minigame", "overlay", "timer"}
 )
-public class BAToolsPlugin extends Plugin
+public class BAToolsPlugin extends Plugin implements KeyListener
 {
 	int inGameBit = 0;
 	int tickNum;
@@ -87,6 +90,8 @@ public class BAToolsPlugin extends Plugin
 	private HashMap<Integer, Instant> foodPressed = new HashMap<>();
 	private CycleCounter counter;
 	private Actor lastInteracted;
+
+	private boolean shiftDown;
 
 	@Inject
 	private Client client;
@@ -118,6 +123,9 @@ public class BAToolsPlugin extends Plugin
 	@Getter
 	private Instant wave_start;
 
+	@Inject
+	private KeyManager keyManager;
+
 
 	@Provides
 	BAToolsConfig provideConfig(ConfigManager configManager)
@@ -134,7 +142,7 @@ public class BAToolsPlugin extends Plugin
 		lastInteracted = null;
 		foodPressed.clear();
 		client.setInventoryDragDelay(config.antiDragDelay());
-
+		keyManager.registerKeyListener(this);
 	}
 
 	@Override
@@ -146,6 +154,8 @@ public class BAToolsPlugin extends Plugin
 		lastInteracted = null;
 		overlayManager.remove(overlay);
 		client.setInventoryDragDelay(5);
+		keyManager.unregisterKeyListener(this);
+		shiftDown = false;
 	}
 
 	@Subscribe
@@ -395,7 +405,7 @@ public class BAToolsPlugin extends Plugin
 			client.setMenuEntries(menuEntries);
 		}
 
-		if (client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT) != null && inGameBit == 1 && config.eggBoi() && event.getTarget().endsWith("egg"))
+		if (client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT) != null && inGameBit == 1 && config.eggBoi() && event.getTarget().endsWith("egg")&& shiftDown)
 		{
 			String[] currentCall = client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT).getText().split(" ");
 			log.info("1 "+currentCall[0]);
@@ -408,23 +418,40 @@ public class BAToolsPlugin extends Plugin
 				if(entry.getTarget().contains(currentCall[0]) && entry.getOption().equals("Take"))
 				{
 					correctEgg = entry;
-					log.info("3 Correct egg found");
-				}
-				else if ( entry.getOption().equals("Take"))
-				{
-					entries.add(entry);
 				}
 			}
-			log.info("2 "+correctEgg);
-			if (correctEgg != null) //&& callWidget.getTextColor()==16316664)
+			if (correctEgg != null)
 			{
 				entries.add(correctEgg);
 				client.setMenuEntries(entries.toArray(new MenuEntry[entries.size()]));
 			}
 		}
-		else
+
+		if (client.getWidget(WidgetInfo.BA_HEAL_LISTEN_TEXT) != null &&inGameBit == 1 && config.osHelp() && event.getTarget().equals("<col=ffff>Healer item machine")&& shiftDown)
 		{
-			log.info((client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT) != null) + " | "+ (inGameBit == 1)  + " | "+config.eggBoi() + " | "+ event.getTarget().endsWith("egg"));
+			String[] currentCall = client.getWidget(WidgetInfo.BA_HEAL_LISTEN_TEXT).getText().split(" ");
+
+			if(!currentCall[1].contains("Pois."))
+			{
+				return;
+			}
+
+			MenuEntry[] menuEntries = client.getMenuEntries();
+			MenuEntry correctEgg = null;
+			entries.clear();
+
+			for (MenuEntry entry : menuEntries)
+			{
+				if(entry.getOption().equals("Take-"+currentCall[1]))
+				{
+					correctEgg = entry;
+				}
+			}
+			if (correctEgg != null)
+			{
+				entries.add(correctEgg);
+				client.setMenuEntries(entries.toArray(new MenuEntry[entries.size()]));
+			}
 		}
 	}
 
@@ -588,5 +615,28 @@ public class BAToolsPlugin extends Plugin
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e)
+	{
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e)
+	{
+		if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+		{
+			shiftDown = true;
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e)
+	{
+		if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+		{
+			shiftDown = false;
+		}
 	}
 }
