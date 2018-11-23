@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2018, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,47 +22,43 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.http.api.updatecheck;
+package net.runelite.client.plugins.gpu.template;
 
-import com.google.gson.JsonParseException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import net.runelite.http.api.RuneLiteAPI;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.Function;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
-public class UpdateCheckClient
+public class TemplateTest
 {
-	private static final Logger logger = LoggerFactory.getLogger(UpdateCheckClient.class);
+	private static final String FILE1 = "" +
+		"test1\n" +
+		"#include file2\n" +
+		"test3\n";
 
-	public boolean isOutdated()
+	private static final String FILE2 = "" +
+		"test4\n" +
+		"test5\n";
+
+	private static final String RESULT = "" +
+		"test1\n" +
+		"test4\n" +
+		"test5\n" +
+		"test3\n";
+
+	@Test
+	public void testProcess()
 	{
-		HttpUrl url = RuneLiteAPI.getApiBase().newBuilder()
-			.addPathSegment("update-check")
-			.build();
-
-		logger.debug("Built URI: {}", url);
-
-		Request request = new Request.Builder()
-			.url(url)
-			.build();
-
-		try (Response response = RuneLiteAPI.CLIENT.newCall(request).execute())
+		Function<String, String> func = (String resource) ->
 		{
-			ResponseBody body = response.body();
-
-			InputStream in = body.byteStream();
-			return RuneLiteAPI.GSON.fromJson(new InputStreamReader(in), boolean.class);
-		}
-		catch (JsonParseException | IOException ex)
-		{
-			logger.debug("Unable to update-check", ex);
-			return false;
-		}
+			switch (resource)
+			{
+				case "file2":
+					return FILE2;
+				default:
+					throw new RuntimeException("unknown resource");
+			}
+		};
+		String out = new Template(func).process(FILE1);
+		assertEquals(RESULT, out);
 	}
 }

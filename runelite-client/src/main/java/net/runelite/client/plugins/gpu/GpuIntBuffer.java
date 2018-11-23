@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Seth <Sethtroll3@gmail.com>
+ * Copyright (c) 2018, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,30 +22,56 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.usernamesyncer;
+package net.runelite.client.plugins.gpu;
 
-import net.runelite.client.config.Config;
-import net.runelite.client.config.ConfigGroup;
-import net.runelite.client.config.ConfigItem;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 
-@ConfigGroup("rememberusername")
-public interface UsernameSyncerConfig extends Config
+class GpuIntBuffer
 {
-	@ConfigItem(
-		keyName = "username",
-		name = "",
-		description = "",
-		hidden = true
-	)
-	default String username()
+	private IntBuffer buffer = allocateDirect(65536);
+
+	void put(int x, int y, int z)
 	{
-		return "";
+		buffer.put(x).put(y).put(z);
 	}
 
-	@ConfigItem(
-		keyName = "username",
-		name = "",
-		description = ""
-	)
-	void username(String key);
+	void put(int x, int y, int z, int c)
+	{
+		buffer.put(x).put(y).put(z).put(c);
+	}
+
+	void flip()
+	{
+		buffer.flip();
+	}
+
+	void clear()
+	{
+		buffer.clear();
+	}
+
+	void ensureCapacity(int size)
+	{
+		while (buffer.remaining() < size)
+		{
+			IntBuffer newB = allocateDirect(buffer.capacity() * 2);
+			buffer.flip();
+			newB.put(buffer);
+			buffer = newB;
+		}
+	}
+
+	IntBuffer getBuffer()
+	{
+		return buffer;
+	}
+
+	static IntBuffer allocateDirect(int size)
+	{
+		return ByteBuffer.allocateDirect(size * Integer.BYTES)
+			.order(ByteOrder.nativeOrder())
+			.asIntBuffer();
+	}
 }
