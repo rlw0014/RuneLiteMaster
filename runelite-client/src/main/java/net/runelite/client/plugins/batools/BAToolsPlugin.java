@@ -427,11 +427,11 @@ public class BAToolsPlugin extends Plugin implements KeyListener
 			}
 		}
 
-		if (client.getWidget(WidgetInfo.BA_HEAL_LISTEN_TEXT) != null &&inGameBit == 1 && config.osHelp() && event.getTarget().equals("<col=ffff>Healer item machine")&& shiftDown)
+		if (client.getWidget(WidgetInfo.BA_HEAL_LISTEN_TEXT) != null && inGameBit == 1 && config.osHelp() && event.getTarget().equals("<col=ffff>Healer item machine")&& shiftDown)
 		{
 			String[] currentCall = client.getWidget(WidgetInfo.BA_HEAL_LISTEN_TEXT).getText().split(" ");
 
-			if(!currentCall[1].contains("Pois."))
+			if(!currentCall[0].contains("Pois."))
 			{
 				return;
 			}
