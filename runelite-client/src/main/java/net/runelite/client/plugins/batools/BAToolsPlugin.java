@@ -315,11 +315,11 @@ public class BAToolsPlugin extends Plugin implements KeyListener
 	@Subscribe
 	public void onInteractingChanged(InteractingChanged event)
 	{
-		Actor actor = event.getTarget();
+		Actor opponent = event.getTarget();
 
-		if (actor instanceof NPC && isNpcHealer(((NPC) actor).getId()))
+		if (opponent != null && opponent instanceof NPC && isNpcHealer(((NPC) opponent).getId()) && event.getSource() != client.getLocalPlayer())
 		{
-			lastInteracted = event.getTarget().getInteracting();
+			lastInteracted = opponent;
 		}
 	}
 
