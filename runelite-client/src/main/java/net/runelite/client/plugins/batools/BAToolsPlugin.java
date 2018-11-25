@@ -309,7 +309,6 @@ public class BAToolsPlugin extends Plugin implements KeyListener
 		{
 			healers.clear();
 		}
-
 	}
 
 	@Subscribe
@@ -340,7 +339,7 @@ public class BAToolsPlugin extends Plugin implements KeyListener
 	@Subscribe
 	public void onMenuEntryAdded(MenuEntryAdded event)
 	{
-		if (config.calls() && getWidget() != null && event.getTarget().endsWith("horn") && !event.getTarget().contains("unicorn"))
+		if (config.calls() && getWidget() != null && event.getTarget().endsWith("horn") && !event.getTarget().contains("Unicorn"))
 		{
 			MenuEntry[] menuEntries = client.getMenuEntries();
 			Widget callWidget = getWidget();
@@ -405,17 +404,17 @@ public class BAToolsPlugin extends Plugin implements KeyListener
 			client.setMenuEntries(menuEntries);
 		}
 
-		if (client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT) != null && inGameBit == 1 && config.eggBoi() && event.getTarget().endsWith("egg")&& shiftDown)
+		if (client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT) != null && inGameBit == 1 && config.eggBoi() && event.getTarget().endsWith("egg") && shiftDown)
 		{
 			String[] currentCall = client.getWidget(WidgetInfo.BA_COLL_LISTEN_TEXT).getText().split(" ");
-			log.info("1 "+currentCall[0]);
+			log.info("1 " + currentCall[0]);
 			MenuEntry[] menuEntries = client.getMenuEntries();
 			MenuEntry correctEgg = null;
 			entries.clear();
 
 			for (MenuEntry entry : menuEntries)
 			{
-				if(entry.getTarget().contains(currentCall[0]) && entry.getOption().equals("Take"))
+				if (entry.getTarget().contains(currentCall[0]) && entry.getOption().equals("Take"))
 				{
 					correctEgg = entry;
 				}
@@ -427,11 +426,11 @@ public class BAToolsPlugin extends Plugin implements KeyListener
 			}
 		}
 
-		if (client.getWidget(WidgetInfo.BA_HEAL_LISTEN_TEXT) != null && inGameBit == 1 && config.osHelp() && event.getTarget().equals("<col=ffff>Healer item machine")&& shiftDown)
+		if (client.getWidget(WidgetInfo.BA_HEAL_LISTEN_TEXT) != null && inGameBit == 1 && config.osHelp() && event.getTarget().equals("<col=ffff>Healer item machine") && shiftDown)
 		{
 			String[] currentCall = client.getWidget(WidgetInfo.BA_HEAL_LISTEN_TEXT).getText().split(" ");
 
-			if(!currentCall[0].contains("Pois."))
+			if (!currentCall[0].contains("Pois."))
 			{
 				return;
 			}
@@ -442,7 +441,7 @@ public class BAToolsPlugin extends Plugin implements KeyListener
 
 			for (MenuEntry entry : menuEntries)
 			{
-				if(entry.getOption().equals("Take-"+currentCall[1]))
+				if (entry.getOption().equals("Take-" + currentCall[1]))
 				{
 					correctEgg = entry;
 				}

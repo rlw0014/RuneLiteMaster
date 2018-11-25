@@ -39,7 +39,7 @@ public interface BAToolsConfig extends Config
 	)
 	default boolean defTimer()
 	{
-		return true;
+		return false;
 	}
 
 	@ConfigItem(
@@ -49,7 +49,7 @@ public interface BAToolsConfig extends Config
 	)
 	default boolean calls()
 	{
-		return true;
+		return false;
 	}
 
 	@ConfigItem(
