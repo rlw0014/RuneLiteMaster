@@ -25,7 +25,6 @@
 package net.runelite.client.plugins.loginscreen;
 
 import com.google.common.base.Strings;
-import com.google.common.eventbus.Subscribe;
 import com.google.inject.Provides;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -39,10 +38,12 @@ import net.runelite.api.GameState;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.SessionOpen;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.input.KeyListener;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.util.OSType;
 
 @PluginDescriptor(
 	name = "Login Screen",
@@ -167,7 +168,10 @@ public class LoginScreenPlugin extends Plugin implements KeyListener
 			return;
 		}
 
-		if (e.getKeyCode() == KeyEvent.VK_V && e.isControlDown())
+		// enable pasting on macOS with the Command (meta) key
+		boolean isModifierDown = OSType.getOSType() == OSType.MacOS ? e.isMetaDown() : e.isControlDown();
+
+		if (e.getKeyCode() == KeyEvent.VK_V && isModifierDown)
 		{
 			try
 			{
