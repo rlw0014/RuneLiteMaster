@@ -25,7 +25,8 @@
  */
 package net.runelite.client.plugins.batools;
 
-import com.google.common.eventbus.Subscribe;
+import net.runelite.client.eventbus.EventBus;
+import net.runelite.client.eventbus.Subscribe;
 import com.google.inject.Provides;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
