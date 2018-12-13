@@ -43,7 +43,7 @@ import net.runelite.api.ScriptID;
 import net.runelite.api.SoundEffectID;
 import net.runelite.api.SpriteID;
 import net.runelite.api.Varbits;
-import net.runelite.api.WidgetType;
+import net.runelite.api.widgets.WidgetType;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WidgetLoaded;
@@ -211,7 +211,7 @@ public class FairyRingPlugin extends Plugin
 		// This has to happen because the only widget that gets hidden is the tli one
 		Widget fairyRingTeleportButton = client.getWidget(WidgetInfo.FAIRY_RING_TELEPORT_BUTTON);
 		boolean fairyRingWidgetOpen = fairyRingTeleportButton != null && !fairyRingTeleportButton.isHidden();
-		boolean chatboxOpen = chatboxPanelManager.getCurrentInput() == searchInput;
+		boolean chatboxOpen = searchInput != null && chatboxPanelManager.getCurrentInput() == searchInput;
 
 		if (!fairyRingWidgetOpen && chatboxOpen)
 		{
