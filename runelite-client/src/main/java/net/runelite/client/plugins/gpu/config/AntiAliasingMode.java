@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Devin French <https://github.com/devinfrench>
+ * Copyright (c) 2018, Lotto <https://github.com/devLotto>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,32 +22,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.fightcave;
+package net.runelite.client.plugins.gpu.config;
 
-import net.runelite.api.AnimationID;
-import net.runelite.api.Prayer;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-public enum JadAttack
+@Getter
+@RequiredArgsConstructor
+public enum AntiAliasingMode
 {
-	MAGIC(AnimationID.TZTOK_JAD_MAGIC_ATTACK, Prayer.PROTECT_FROM_MAGIC),
-	RANGE(AnimationID.TZTOK_JAD_RANGE_ATTACK, Prayer.PROTECT_FROM_MISSILES);
+	DISABLED("Disabled", 0),
+	MSAA_2("MSAA x2", 2),
+	MSAA_4("MSAA x4", 4),
+	MSAA_8("MSAA x8", 8),
+	MSAA_16("MSAA x16", 16);
 
-	private final int animation;
-	private final Prayer prayer;
+	private final String name;
+	private final int samples;
 
-	JadAttack(int animation, Prayer prayer)
+	@Override
+	public String toString()
 	{
-		this.animation = animation;
-		this.prayer = prayer;
-	}
-
-	public int getAnimation()
-	{
-		return animation;
-	}
-
-	public Prayer getPrayer()
-	{
-		return prayer;
+		return name;
 	}
 }
