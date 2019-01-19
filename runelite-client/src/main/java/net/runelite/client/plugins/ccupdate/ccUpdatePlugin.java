@@ -1,6 +1,8 @@
 package net.runelite.client.plugins.ccupdate;
 
 import com.google.common.collect.Sets;
+import com.google.inject.Provides;
+import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -18,6 +20,7 @@ import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.barbarianassault.BarbarianAssaultConfig;
 import net.runelite.http.api.RuneLiteAPI;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -51,31 +54,38 @@ public class ccUpdatePlugin extends Plugin
 
 	@Inject
 	private ChatMessageManager chatMessageManager;
-
 	private HashSet<ClanMember> previousMembersInClan;
-
 	private String clanChannelName;
-
 	private Socket socket;
 
+	@Inject
+	private ccUpdateConfig config;
+
+	@Provides
+	ccUpdateConfig provideConfig(ConfigManager configManager)
+	{
+		return configManager.getConfig(ccUpdateConfig.class);
+	}
 	@Override
 	protected void startUp() throws Exception
 	{
 		previousMembersInClan = null;
-        socket = IO.socket("https://baservicesserver.now.sh");
-        socket.on("new", objects -> {
-			JSONArray newRows = (JSONArray)objects[0];
-			for (int i = 0; i < newRows.length(); i++) {
-				try {
-					JSONObject obj = newRows.getJSONObject(i);
-					String value = obj.getString("premium");
-					postChatMessage(value);
-				} catch (JSONException exception) {
+			socket = IO.socket("https://baservicesserver.now.sh");
+			socket.on("new", objects -> {
+				JSONArray newRows = (JSONArray) objects[0];
+				for (int i = 0; i < newRows.length(); i++) {
+					try {
+						JSONObject obj = newRows.getJSONObject(i);
+						String value = obj.getString("premium");
+							if (config.premNotifier()) {
+								postChatMessage(value);
+							}
+					} catch (JSONException exception) {
 
+					}
 				}
-			}
-        });
-        socket.connect();
+			});
+			socket.connect();
 	}
 
 	@Override
