@@ -24,7 +24,6 @@
  */
 package net.runelite.client.plugins.twitch;
 
-import com.google.common.eventbus.Subscribe;
 import com.google.inject.Provides;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -41,6 +40,7 @@ import net.runelite.client.chat.ChatboxInputListener;
 import net.runelite.client.chat.CommandManager;
 import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ChatboxInput;
 import net.runelite.client.events.PrivateMessageInput;
 import net.runelite.client.plugins.Plugin;
@@ -96,7 +96,7 @@ public class TwitchPlugin extends Plugin implements TwitchListener, ChatboxInput
 		return configManager.getConfig(TwitchConfig.class);
 	}
 
-	private void connect()
+	private synchronized void connect()
 	{
 		if (twitchConfig.username() != null
 			&& twitchConfig.oauthToken() != null
@@ -106,6 +106,13 @@ public class TwitchPlugin extends Plugin implements TwitchListener, ChatboxInput
 			if (!channel.startsWith("#"))
 			{
 				channel = "#" + channel;
+			}
+
+			log.debug("Connecting to Twitch as {}", twitchConfig.username());
+
+			if (twitchIRCClient != null)
+			{
+				twitchIRCClient.close();
 			}
 
 			twitchIRCClient = new TwitchIRCClient(
@@ -143,12 +150,6 @@ public class TwitchPlugin extends Plugin implements TwitchListener, ChatboxInput
 		if (!configChanged.getGroup().equals("twitch"))
 		{
 			return;
-		}
-
-		if (twitchIRCClient != null)
-		{
-			twitchIRCClient.close();
-			twitchIRCClient = null;
 		}
 
 		connect();

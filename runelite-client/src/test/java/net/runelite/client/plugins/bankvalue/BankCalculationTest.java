@@ -30,17 +30,16 @@ import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import javax.inject.Inject;
 import net.runelite.api.Client;
+import net.runelite.api.InventoryID;
+import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;
+import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
-import net.runelite.api.queries.BankItemQuery;
-import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.game.ItemManager;
-import net.runelite.client.util.QueryRunner;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.mockito.Matchers.any;
 import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -52,10 +51,6 @@ public class BankCalculationTest
 	@Mock
 	@Bind
 	private Client client;
-
-	@Mock
-	@Bind
-	private QueryRunner queryRunner;
 
 	@Mock
 	@Bind
@@ -80,21 +75,37 @@ public class BankCalculationTest
 		when(bankValueConfig.showHA())
 			.thenReturn(true);
 
-		WidgetItem[] widgetItems = ImmutableList.of(
-			new WidgetItem(ItemID.COINS_995, Integer.MAX_VALUE, -1, null),
-			new WidgetItem(ItemID.ABYSSAL_WHIP, 1_000_000_000, -1, null)
-		).toArray(new WidgetItem[0]);
+		Item coins = mock(Item.class);
+		when(coins.getId())
+			.thenReturn(ItemID.COINS_995);
+		when(coins.getQuantity())
+			.thenReturn(Integer.MAX_VALUE);
 
-		when(queryRunner.runQuery(any(BankItemQuery.class)))
-			.thenReturn(widgetItems);
-
-		ItemComposition whip = mock(ItemComposition.class);
+		Item whip = mock(Item.class);
 		when(whip.getId())
 			.thenReturn(ItemID.ABYSSAL_WHIP);
-		when(whip.getPrice())
+		when(whip.getQuantity())
+			.thenReturn(1_000_000_000);
+
+		Item[] items = ImmutableList.of(
+			coins,
+			whip
+		).toArray(new Item[0]);
+
+		ItemContainer bankContainer = mock(ItemContainer.class);
+		when(bankContainer.getItems())
+			.thenReturn(items);
+
+		when(client.getItemContainer(InventoryID.BANK))
+			.thenReturn(bankContainer);
+
+		ItemComposition whipComp = mock(ItemComposition.class);
+		when(whipComp.getId())
+			.thenReturn(ItemID.ABYSSAL_WHIP);
+		when(whipComp.getPrice())
 			.thenReturn(7); // 7 * .6 = 4, 4 * 1m overflows
 		when(itemManager.getItemComposition(ItemID.ABYSSAL_WHIP))
-			.thenReturn(whip);
+			.thenReturn(whipComp);
 
 		bankCalculation.calculate();
 

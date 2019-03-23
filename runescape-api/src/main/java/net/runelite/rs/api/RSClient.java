@@ -307,6 +307,9 @@ public interface RSClient extends RSGameEngine, Client
 	@Import("menuActionParams1")
 	int[] getMenuActionParams1();
 
+	@Import("menuForceLeftClick")
+	boolean[] getMenuForceLeftClick();
+
 	@Import("worldList")
 	@Override
 	RSWorld[] getWorldList();
@@ -454,6 +457,10 @@ public interface RSClient extends RSGameEngine, Client
 	@Override
 	Map getChatLineMap();
 
+	@Import("messages")
+	@Override
+	RSIterableHashTable getMessages();
+
 	@Import("revision")
 	@Override
 	int getRevision();
@@ -493,9 +500,9 @@ public interface RSClient extends RSGameEngine, Client
 	@Import("widgetRoot")
 	int getWidgetRoot();
 
-	@Import("mapAreaType")
+	@Import("mapElementConfigs")
 	@Override
-	RSArea[] getMapAreas();
+	RSMapElementConfig[] getMapElementConfigs();
 
 	@Import("mapscene")
 	@Override
@@ -778,6 +785,10 @@ public interface RSClient extends RSGameEngine, Client
 	@Override
 	RSNodeCache getWidgetSpriteCache();
 
+	@Import("items")
+	@Override
+	RSNodeCache getItemCompositionCache();
+
 	@Import("oculusOrbState")
 	@Override
 	int getOculusOrbState();
@@ -789,6 +800,14 @@ public interface RSClient extends RSGameEngine, Client
 	@Import("oculusOrbNormalSpeed")
 	@Override
 	void setOculusOrbNormalSpeed(int state);
+
+	@Import("lookingAtX")
+	@Override
+	int getOculusOrbFocalPointX();
+
+	@Import("lookingAtY")
+	@Override
+	int getOculusOrbFocalPointY();
 
 	RSItem getLastItemDespawn();
 
@@ -892,6 +911,9 @@ public interface RSClient extends RSGameEngine, Client
 	@Import("graphicsPixelsHeight")
 	int getGraphicsPixelsHeight();
 
+	@Import("fillRectangle")
+	void RasterizerFillRectangle(int x, int y, int w, int h, int rgb);
+
 	@Import("startX")
 	int getStartX();
 
@@ -903,4 +925,11 @@ public interface RSClient extends RSGameEngine, Client
 
 	@Import("endY")
 	int getEndY();
+
+	@Import("spellSelected")
+	@Override
+	void setSpellSelected(boolean selected);
+
+	@Import("getEnum")
+	RSEnum getRsEnum(int id);
 }
