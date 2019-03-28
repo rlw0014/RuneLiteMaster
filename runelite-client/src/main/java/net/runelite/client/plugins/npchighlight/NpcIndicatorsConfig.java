@@ -29,11 +29,7 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-@ConfigGroup(
-	keyName = "npcindicators",
-	name = "NPC Indicators",
-	description = "Configuration for the NPC indicators plugin"
-)
+@ConfigGroup("npcindicators")
 public interface NpcIndicatorsConfig extends Config
 {
 	@ConfigItem(
@@ -64,35 +60,13 @@ public interface NpcIndicatorsConfig extends Config
 		name = "Highlight Color",
 		description = "Color of the NPC highlight"
 	)
-	default Color getNpcColor()
+	default Color getHighlightColor()
 	{
 		return Color.CYAN;
 	}
 
 	@ConfigItem(
 		position = 3,
-		keyName = "enableTag",
-		name = "Enable Tag Option",
-		description = "Enable the NPC tag menu option"
-	)
-	default boolean isTagEnabled()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		position = 4,
-		keyName = "tagColor",
-		name = "Tag Color",
-		description = "Color of the NPC tag highlight"
-	)
-	default Color getTagColor()
-	{
-		return Color.CYAN;
-	}
-
-	@ConfigItem(
-		position = 5,
 		keyName = "drawNames",
 		name = "Draw names above NPC",
 		description = "Configures whether or not NPC names should be drawn above the NPC"
@@ -103,12 +77,22 @@ public interface NpcIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
-		position = 6,
+		position = 4,
 		keyName = "drawMinimapNames",
 		name = "Draw names on minimap",
 		description = "Configures whether or not NPC names should be drawn on the minimap"
 	)
 	default boolean drawMinimapNames()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		position = 5,
+		keyName = "showRespawnTimer",
+		name = "Show respawn timer",
+		description = "Show respawn timer of tagged NPCs")
+	default boolean showRespawnTimer()
 	{
 		return false;
 	}

@@ -27,11 +27,17 @@ package net.runelite.api;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * An enumeration of string local variables.
+ */
 @AllArgsConstructor
 @Getter
 public enum VarClientStr
 {
-	CHATBOX_TYPED_TEXT(1);
+	CHATBOX_TYPED_TEXT(335),
+	INPUT_TEXT(359),
+	PRIVATE_MESSAGE_TARGET(360),
+	RECENT_CLAN_CHAT(362);
 
 	private final int index;
 }

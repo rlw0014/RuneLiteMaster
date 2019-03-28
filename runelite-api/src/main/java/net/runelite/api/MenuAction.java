@@ -27,6 +27,9 @@ package net.runelite.api;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * An enumeration of right-click menu actions.
+ */
 public enum MenuAction
 {
 	/**
@@ -257,6 +260,14 @@ public enum MenuAction
 	 * Menu action injected by runelite for its menu items.
 	 */
 	RUNELITE(1500),
+	/**
+	 * Menu action injected by runelite for overlay menu items.
+	 */
+	RUNELITE_OVERLAY(1501),
+	/**
+	 * Menu action for configuring runelite overlays.
+	 */
+	RUNELITE_OVERLAY_CONFIG(1502),
 
 	FOLLOW(2046),
 	TRADE(2047),
@@ -265,6 +276,8 @@ public enum MenuAction
 	 * Menu action triggered when the id is not defined in this class.
 	 */
 	UNKNOWN(-1);
+
+	public static final int MENU_ACTION_DEPRIORITIZE_OFFSET = 2000;
 
 	private static final Map<Integer, MenuAction> map = new HashMap<>();
 

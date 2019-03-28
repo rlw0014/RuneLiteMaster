@@ -27,6 +27,9 @@ package net.runelite.api;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * An enumeration of local client variables.
+ */
 @AllArgsConstructor
 @Getter
 public enum Varbits
@@ -36,13 +39,15 @@ public enum Varbits
 	 */
 	TRANSPARENT_CHATBOX(4608),
 
-	/**
-	 * Runecraft pouches
+	/*
+	 * If the player has an active stamina potion effect or not
 	 */
-	POUCH_SMALL(603),
-	POUCH_MEDIUM(604),
-	POUCH_LARGE(605),
-	POUCH_GIANT(606),
+	RUN_SLOWED_DEPLETION_ACTIVE(25),
+
+	/**
+	 * If scrollbar in resizable mode chat is on the left
+	 */
+	CHAT_SCROLLBAR_ON_LEFT(6374),
 
 	/**
 	 * Runepouch
@@ -57,6 +62,7 @@ public enum Varbits
 	/**
 	 * Prayers
 	 */
+	QUICK_PRAYER(4103),
 	PRAYER_THICK_SKIN(4104),
 	PRAYER_BURST_OF_STRENGTH(4105),
 	PRAYER_CLARITY_OF_THOUGHT(4106),
@@ -146,6 +152,15 @@ public enum Varbits
 	DIARY_WILDERNESS_ELITE(4469),
 
 	/**
+	 * Kourend house favours
+	 */
+	KOUREND_FAVOR_ARCEUUS(4896),
+	KOUREND_FAVOR_HOSIDIUS(4895),
+	KOUREND_FAVOR_LOVAKENGJ(4898),
+	KOUREND_FAVOR_PISCARILIUS(4899),
+	KOUREND_FAVOR_SHAYZIEN(4894),
+
+	/**
 	 * Equipped weapon type
 	 */
 	EQUIPPED_WEAPON_TYPE(357),
@@ -199,6 +214,29 @@ public enum Varbits
 	IN_GAME_BA(3923),
 
 	/**
+	 * 0 = Outside wilderness
+	 * 1 = In wilderness
+	 */
+	IN_WILDERNESS(5963),
+
+	/**
+	 * Fishing Trawler
+	 * FISHING_TRAWLER_ACTIVITY Expected values: 0-255
+	 */
+	FISHING_TRAWLER_ACTIVITY(3377),
+
+	/**
+	 * Blast Furnace Bar Dispenser
+	 *
+	 * These are the expected values:
+	 *	0 = No bars being processed
+	 *	1 = Ores are being processed on the conveyor belt, bar dispenser cannot be checked
+	 *	2 = Bars are cooling down
+	 *	3 = Bars can be collected
+	 */
+	BAR_DISPENSER(936),
+
+	/**
 	 * Motherlode mine sack
 	 */
 	SACK_NUMBER(5558),
@@ -206,6 +244,11 @@ public enum Varbits
 
 	/**
 	 * Experience tracker
+	 *
+	 * EXPERIENCE_TRACKER_POSITION expected values:
+	 *   0 = Right
+	 *   1 = Middle
+	 *   2 = Left
 	 */
 	EXPERIENCE_TRACKER_POSITION(4692),
 	EXPERIENCE_TRACKER_COUNTER(4697),
@@ -222,6 +265,15 @@ public enum Varbits
 	TITHE_FARM_SACK_AMOUNT(4900),
 	TITHE_FARM_SACK_ICON(5370),
 	TITHE_FARM_POINTS(4893),
+	
+	/**
+	 * Blast Mine
+	 */
+	BLAST_MINE_COAL(4924),
+	BLAST_MINE_GOLD(4925),
+	BLAST_MINE_MITHRIL(4926),
+	BLAST_MINE_ADAMANTITE(4921),
+	BLAST_MINE_RUNITE(4922),
 
 	/**
 	 * Raids
@@ -230,6 +282,11 @@ public enum Varbits
 	TOTAL_POINTS(5431),
 	PERSONAL_POINTS(5422),
 	RAID_PARTY_SIZE(5424),
+
+	/**
+	 * Theatre of Blood 1=In Party, 2=Inside/Spectator, 3=Dead Spectating
+	 */
+	THEATRE_OF_BLOOD(6440),
 
 	/**
 	 * Nightmare Zone
@@ -276,6 +333,8 @@ public enum Varbits
 	BARROWS_KILLED_KARIL(460),
 	BARROWS_KILLED_TORAG(461),
 	BARROWS_KILLED_VERAC(462),
+	BARROWS_REWARD_POTENTIAL(463),
+	BARROWS_NPCS_SLAIN(464),
 
 	/**
 	 * Spicy stew ingredients
@@ -295,14 +354,26 @@ public enum Varbits
 	 */
 	KINGDOM_FAVOR(72),
 	KINGDOM_COFFER(74),
-	THRONE_OF_MISCELLANIA_QUEST(359),
+
+	/**
+	 * The Hand in the Sand quest status
+	 */
+	QUEST_THE_HAND_IN_THE_SAND(1527),
 
 	/**
 	 * Daily Tasks (Collection availability)
 	 */
-	DAILY_HERB_BOX(3961),
-	DAILY_STAVES(4539),
-	DAILY_ESSENCE(4547),
+	DAILY_HERB_BOXES_COLLECTED(3961),
+	DAILY_STAVES_COLLECTED(4539),
+	DAILY_ESSENCE_COLLECTED(4547),
+	DAILY_RUNES_COLLECTED(4540),
+	DAILY_SAND_COLLECTED(4549),
+	DAILY_FLAX_STATE(4559),
+	/**
+	 * This varbit tracks how much bonemeal has been redeemed from Robin
+	 * The player gets 13 for each diary completed above and including Medium, for a maxiumum of 39
+ 	*/
+	DAILY_BONEMEAL_STATE(4543),
 
 	/**
 	 * Fairy Ring
@@ -319,6 +390,15 @@ public enum Varbits
 	FARMING_4772(4772),
 	FARMING_4773(4773),
 	FARMING_4774(4774),
+	FARMING_4775(4775),
+	FARMING_7904(7904),
+	FARMING_7905(7905),
+	FARMING_7906(7906),
+	FARMING_7907(7907),
+	FARMING_7908(7908),
+	FARMING_7909(7909),
+	FARMING_7910(7910),
+	FARMING_7911(7911),
 
 	/**
 	 * Transmog controllers for grapes
@@ -344,10 +424,66 @@ public enum Varbits
 	/**
 	 * The varbit that stores the players {@code AccountType}.
 	 */
-	ACCOUNT_TYPE(1777);
+	ACCOUNT_TYPE(1777),
 
 	/**
-	 * varbit id
+	 * The varbit that stores the oxygen percentage for player
+	 */
+	OXYGEN_LEVEL(5811),
+	
+	/**
+	 * Corp beast damage
+	 */
+	CORP_DAMAGE(999),
+
+	/**
+	 * Toggleable slayer unlocks
+	 */
+	SUPERIOR_ENABLED(5362),
+	FOSSIL_ISLAND_WYVERN_DISABLE(6251),
+
+	CURRENT_BANK_TAB(4150),
+
+	WORLDHOPPER_FAVROITE_1(4597),
+	WORLDHOPPER_FAVROITE_2(4598),
+
+	/**
+	 * Vengeance is active
+	 */
+	VENGEANCE_ACTIVE(2450),
+
+	/**
+	 * Spell cooldowns
+	 */
+	VENGEANCE_COOLDOWN(2451),
+
+	/**
+	 * Amount of items in each bank tab
+	 */
+	BANK_TAB_ONE_COUNT(4171),
+	BANK_TAB_TWO_COUNT(4172),
+	BANK_TAB_THREE_COUNT(4173),
+	BANK_TAB_FOUR_COUNT(4174),
+	BANK_TAB_FIVE_COUNT(4175),
+	BANK_TAB_SIX_COUNT(4176),
+	BANK_TAB_SEVEN_COUNT(4177),
+	BANK_TAB_EIGHT_COUNT(4178),
+	BANK_TAB_NINE_COUNT(4179),
+
+	/**
+	 * Type of GE offer currently being created
+	 * 0 = buy
+	 * 1 = sell
+	 */
+	GE_OFFER_CREATION_TYPE(4397),
+
+	/**
+	 * The active tab within the quest interface
+	 */
+	QUEST_TAB(8168);
+
+	/**
+	 * The raw varbit ID.
 	 */
 	private final int id;
 }
